@@ -17,14 +17,11 @@ async function requestUrl(request: RequestUrlParam): Promise<Response> {
     let headers = new Headers()
     headers.set('Content-Type', 'application/json')
 
-    console.log("fetch")
-    console.log(request)
     if (request.method === "POST") {
         res = await fetch(request.url, { method: "POST", body: request.body, headers })
     } else {
         res = await fetch(request.url)
     }
-    console.log(res)
     return res
 }
 
@@ -35,6 +32,19 @@ export default class Api {
         this.port = port
     }
 
+    async echo(): Promise<number> {
+        let request: RequestUrlParam = {
+            url: `http://localhost:${this.port}/echo`,
+            method: "GET",
+        }
+
+        try {
+            let response = await requestUrl(request);
+            return response.status
+        } catch (e) {
+            return 0
+        }
+    }
     // // 寻找页面中已经记录过的单词和词组
     // async getStoredWords(
     //     payload: ArticleWords

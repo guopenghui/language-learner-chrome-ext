@@ -1,3 +1,4 @@
+import Api from "../api"
 
 chrome.runtime.onInstalled.addListener((details) => {
     // 注册右键菜单
@@ -23,6 +24,24 @@ chrome.contextMenus.onClicked.addListener(async (event) => {
     }
 })
 
+let api: Api;
+chrome.storage.sync.get(["port"], (data) => {
+    api = new Api(data.port)
+})
+
+chrome.alarms.create("echo", { periodInMinutes: 1 / 6 })
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name === "echo") {
+        let status = await api.echo()
+        if (status === 200) {
+            chrome.action.setBadgeText({ text: "ON" })
+            chrome.action.setBadgeBackgroundColor({ color: "#55bb55" })
+        } else {
+            chrome.action.setBadgeText({ text: "OFF" })
+            chrome.action.setBadgeBackgroundColor({ color: "#fb7254" })
+        }
+    }
+})
 
 
 // async function loadData() {

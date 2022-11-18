@@ -34,6 +34,6 @@ export default defineManifest({
             matches: [],
         },
     ],
-    permissions: ["storage", "contextMenus", "tabs"],
+    permissions: ["storage", "contextMenus", "tabs", "alarms"],
     host_permissions: ["http://localhost:*/*"],
 })
