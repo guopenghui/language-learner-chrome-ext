@@ -1,7 +1,7 @@
 <template>
     <!-- <button @click="active=true">打开</button> -->
     <NDrawer v-model:show="active" :block-scroll="false" :show-mask="false" :mask-closable="false" :resizable="true"
-        :default-width="340" @keyup.esc="active = false" :z-index="999">
+        :default-width="340" @keyup.esc="active = false" :z-index="19999">
         <NMessageProvider>
             <NLoadingBarProvider :to="content">
                 <NDrawerContent :title="t('Study')" closable>
@@ -44,7 +44,6 @@ onUnmounted(() => {
 
 chrome.runtime.onMessage.addListener((msg, sender, cb) => {
     if (msg.type === "GET_WORD") {
-        // console.log("抽屉收到消息")
         active.value = true;
     }
 })

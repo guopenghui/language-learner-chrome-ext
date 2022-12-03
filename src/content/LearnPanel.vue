@@ -122,8 +122,8 @@ import {
 } from "naive-ui";
 
 import { ExpressionInfo, Sentence } from "./interface";
-import Api from "../api";
 import { t } from "../lang/helper";
+import { getTags, searchWord, postWord } from "./api";
 
 
 let message = useMessage();
@@ -138,18 +138,6 @@ const loading = useLoadingBar();
 // 	return store.dark? darkTheme: null
 // })
 const theme = null;
-
-let api: Api;
-chrome.storage.sync.get(["port"], (data) => {
-    api = new Api(data.port);
-});
-chrome.runtime.onMessage.addListener((msg) => {
-    console.log("panel收到改变port信息");
-    if (msg.type === "CHANGE_PORT") {
-        console.log("panel执行");
-        api.port = msg.port;
-    }
-});
 
 
 //表单数据
@@ -228,7 +216,7 @@ let tags: string[] = [];
 async function tagSearch(query: string) {
     tagLoading.value = true;
     if (query.length < 2) {
-        tags = await api.getTags() ?? [];
+        tags = await getTags() ?? [];
     }
     tagLoading.value = false;
 
@@ -269,7 +257,7 @@ async function submit() {
     (data as any).expression = (data as any).expression.trim().toLowerCase();
     // 超过1条例句时，sentences中的对象会变成Proxy，尚不知原因，因此用JSON转换一下
     loading.start();
-    let statusCode = await api.postExpression(data);
+    let statusCode = await postWord(data);
 
     if (statusCode !== 200) {
         loading.error();
@@ -282,9 +270,7 @@ async function submit() {
 
 // 查询词汇时自动填充新词表单
 async function onSearch(selection: string) {
-    // console.log("before get")
-    let expr = await api.getExpression(selection);
-    // console.log("after get")
+    let expr = await searchWord(selection);
 
     let exprType = "WORD";
     if (selection.trim().includes(" ")) {
@@ -309,7 +295,6 @@ async function onSearch(selection: string) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, cb) => {
-    // console.log(`panel接收到了消息, selection = ${msg.selection}`)
     if (msg.type == "GET_WORD" && msg.selection) {
         onSearch(msg.selection);
     }

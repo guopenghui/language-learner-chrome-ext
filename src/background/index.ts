@@ -17,17 +17,40 @@ chrome.runtime.onInstalled.addListener((details) => {
 // 每次打开插件时注册事件
 chrome.contextMenus.onClicked.addListener(async (event) => {
     let [currentTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    // console.log("点击了选项")
     if (currentTab.id) {
-        // console.log(currentTab.id)
         chrome.tabs.sendMessage(currentTab.id, { type: "GET_WORD", selection: event.selectionText });
     }
 });
 
 let api: Api;
 chrome.storage.sync.get(["port"], (data) => {
-    api = new Api(data.port);
+    api = new Api(data.port ?? 3002);
 });
+
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === "CHANGE_PORT") {
+        api.port = msg.port;
+    }
+});
+chrome.runtime.onMessage.addListener((msg, _, cb) => {
+    if (msg.type === "SEARCH_WORD") {
+        api.getExpression(msg.word).then(cb);
+        return true;
+    }
+});
+chrome.runtime.onMessage.addListener((msg, _, cb) => {
+    if (msg.type === "GET_TAGS") {
+        api.getTags().then(cb);
+        return true;
+    }
+});
+chrome.runtime.onMessage.addListener((msg, _, cb) => {
+    if (msg.type === "POST_WORD") {
+        api.postExpression(msg.data).then(cb);
+        return true;
+    }
+});
+
 
 chrome.alarms.create("echo", { periodInMinutes: 1 / 6 });
 chrome.alarms.onAlarm.addListener(async (alarm) => {
