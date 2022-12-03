@@ -31,4 +31,4 @@ export default {
     "Submit": "提交",
     "Port": "端口",
     "Save Success": "成功",
-}
+};

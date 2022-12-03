@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue';
 
 onMounted(() => {
-    let input = document.getElementById("test-input") as HTMLInputElement
-    let btn = document.getElementById("test-btn") as HTMLButtonElement
-})
+    let input = document.getElementById("test-input") as HTMLInputElement;
+    let btn = document.getElementById("test-btn") as HTMLButtonElement;
+});
 
 let port = ref(0);
 chrome.storage.sync.get(["port"], (data) => {
-    port.value = data.port
-}) 
+    port.value = data.port;
+})
 
 </script>
 

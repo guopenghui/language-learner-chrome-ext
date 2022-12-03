@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const crx = ref('create-chrome-ext')
+const crx = ref('create-chrome-ext');
 </script>
 
 <template>

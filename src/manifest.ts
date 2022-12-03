@@ -1,4 +1,4 @@
-import { defineManifest } from '@crxjs/vite-plugin'
+import { defineManifest } from '@crxjs/vite-plugin';
 
 export default defineManifest({
     name: 'langr',
@@ -36,4 +36,4 @@ export default defineManifest({
     ],
     permissions: ["storage", "contextMenus", "tabs", "alarms"],
     host_permissions: ["http://localhost:*/*"],
-})
+});

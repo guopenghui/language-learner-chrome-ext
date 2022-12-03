@@ -62,4 +62,4 @@ interface WordCount {
 export type {
     ArticleWords, Word, Phrase, WordsPhrase, Sentence,
     ExpressionInfo, ExpressionInfoSimple, CountInfo, WordCount, Span
-}
+};

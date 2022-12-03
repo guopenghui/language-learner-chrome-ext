@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { NMessageProvider, useMessage } from "naive-ui"
-import { t } from "../lang/helper"
+import { ref } from 'vue';
+import { NMessageProvider, useMessage } from "naive-ui";
+import { t } from "../lang/helper";
 
-let port = ref(3002)
+let port = ref(3002);
 chrome.storage.sync.get(["port"], (data) => {
-    port.value = data.port
-})
+    port.value = data.port;
+});
 
-let message = useMessage()
+let message = useMessage();
 
 
 function saveSettings() {
     chrome.storage.sync.set({
         port: port.value,
-    }, () => {
-        chrome.runtime.sendMessage({type: "CHANGE_PORT", port: port.value})
-        message.success(t("Save Success"))
-    })
+    }, async () => {
+        await chrome.runtime.sendMessage({ type: "CHANGE_PORT", port: port.value });
+        message.success(t("Save Success"));
+    });
 }
 
 // function MC(props:any, { slots, emit, attrs}: any) {
@@ -30,7 +30,7 @@ function saveSettings() {
     <main>
         <h3>Options Page!</h3>
         <div class="option-container">
-            <span>{{t("Port")}}: </span>
+            <span>{{ t("Port") }}: </span>
             <input type="number" v-model="port">
             <button @click="saveSettings">Save</button>
         </div>

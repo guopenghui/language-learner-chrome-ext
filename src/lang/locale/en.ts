@@ -30,4 +30,4 @@ export default {
     "Submit": "Submit",
     "Port": "Port",
     "Save Success": "Save Success",
-}
+};

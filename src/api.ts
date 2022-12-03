@@ -2,7 +2,7 @@ import {
     ArticleWords, Word, Phrase, WordsPhrase,
     Sentence, ExpressionInfo, ExpressionInfoSimple,
     CountInfo, WordCount, Span
-} from "./content/interface"
+} from "./content/interface";
 
 interface RequestUrlParam {
     url: string,
@@ -12,37 +12,37 @@ interface RequestUrlParam {
 }
 
 async function requestUrl(request: RequestUrlParam): Promise<Response> {
-    let data = {} as any
-    let res = null as unknown as Response
-    let headers = new Headers()
-    headers.set('Content-Type', 'application/json')
+    let data = {} as any;
+    let res = null as unknown as Response;
+    let headers = new Headers();
+    headers.set('Content-Type', 'application/json');
 
     if (request.method === "POST") {
-        res = await fetch(request.url, { method: "POST", body: request.body, headers })
+        res = await fetch(request.url, { method: "POST", body: request.body, headers });
     } else {
-        res = await fetch(request.url)
+        res = await fetch(request.url);
     }
-    return res
+    return res;
 }
 
 
 export default class Api {
     port: number;
     constructor(port: number) {
-        this.port = port
+        this.port = port;
     }
 
     async echo(): Promise<number> {
         let request: RequestUrlParam = {
             url: `http://localhost:${this.port}/echo`,
             method: "GET",
-        }
+        };
 
         try {
             let response = await requestUrl(request);
-            return response.status
+            return response.status;
         } catch (e) {
-            return 0
+            return 0;
         }
     }
     // // 寻找页面中已经记录过的单词和词组
@@ -74,7 +74,7 @@ export default class Api {
             method: "POST",
             body: JSON.stringify(expression.toLowerCase()),
             contentType: "application/json",
-        }
+        };
 
         try {
             let response = await requestUrl(request);
