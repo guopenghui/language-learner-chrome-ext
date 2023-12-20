@@ -1,26 +1,26 @@
 <template>
     <div id="langr-learn-panel">
-        <NConfigProvider :theme="theme">
+        <NConfigProvider :theme="theme" :theme-overrides="themeOverrides">
             <NForm :model="model" label-placement="top" label-width="auto" :rules="rules"
                 require-mark-placement="right-hanging">
                 <!-- 一个单词或短语字符串 -->
-                <NFormItem :label="t('Expression')" :label-style="labelStyle" path="expression">
-                    <NInput v-model:value="model.expression" :placeholder="t('A word or a phrase')" />
+                <NFormItem :label="t('Expression')" label-placement="left" :label-style="labelStyle" path="expression">
+                    <NInput size="small" v-model:value="model.expression" :placeholder="t('A word or a phrase')" />
                 </NFormItem>
                 <!-- 单词或短语的含义(精简) -->
-                <NFormItem :label="t('Meaning')" :label-style="labelStyle" path="meaning">
-                    <NInput v-model:value="model.meaning" :placeholder="t('A short definition')" type="textarea"
+                <NFormItem :label="t('Meaning')" label-placement="left" :label-style="labelStyle" path="meaning">
+                    <NInput size="small" v-model:value="model.meaning" :placeholder="t('A short definition')" type="textarea"
                         autosize />
                 </NFormItem>
                 <!-- 类别，可以是Word或Phrase -->
-                <NFormItem :label="t('Type')" :label-style="labelStyle" path="t">
+                <!-- <NFormItem :label="t('Type')" label-placement="left" :label-style="labelStyle" path="t">
                     <NRadioGroup v-model:value="model.t">
                         <NRadio value="WORD">{{ t("Word") }}</NRadio>
                         <NRadio value="PHRASE">{{ t("Phrase") }}</NRadio>
                     </NRadioGroup>
-                </NFormItem>
+                </NFormItem> -->
                 <!-- 当前单词的学习状态 -->
-                <NFormItem :label="t('Status')" :label-style="labelStyle" path="status">
+                <NFormItem :label="t('Status')" label-placement="left" :label-style="labelStyle" path="status">
                     <NRadioGroup v-model:value="model.status" size="small">
                         <NRadioButton :value="0">{{
                                 t("Ignore")
@@ -40,14 +40,14 @@
                     </NRadioGroup>
                 </NFormItem>
                 <!-- 加一些tag, 可以用来搜索 -->
-                <NFormItem :label="t('Tags')" :label-style="labelStyle" path="tags">
-                    <NSelect v-model:value="model.tags" filterable multiple tag
+                <NFormItem :label="t('Tags')" label-placement="left" :label-style="labelStyle" path="tags">
+                    <NSelect size="small" v-model:value="model.tags" filterable multiple tag
                         :placeholder="t('Input or select some tags')" :loading="tagLoading" :options="tagOptions"
                         @search="tagSearch"></NSelect>
                 </NFormItem>
                 <!-- 可选,可以记多条笔记 -->
                 <NFormItem :label="t('Notes')" :label-style="labelStyle" path="tags">
-                    <NDynamicInput v-model:value="model.notes">
+                    <NDynamicInput v-model:value="model.notes" :create-button-props="{size: 'small'}">
                         <template #create-button-default>
                             {{ t("Create") }}
                         </template>
@@ -63,7 +63,7 @@
                             t("Sentences")
                     }}</label>
                 </div>
-                <NDynamicInput v-model:value="model.sentences" :on-create="onCreateSentence">
+                <NDynamicInput v-model:value="model.sentences" :on-create="onCreateSentence" :create-button-props="{size: 'small'}">
                     <template #create-button-default>
                         {{ t("Create") }}
                     </template>
@@ -118,7 +118,8 @@ import {
     NConfigProvider,
     darkTheme,
     useMessage,
-    useLoadingBar
+    useLoadingBar,
+GlobalThemeOverrides
 } from "naive-ui";
 
 import { ExpressionInfo, Sentence } from "./interface";
@@ -138,6 +139,31 @@ const loading = useLoadingBar();
 // 	return store.dark? darkTheme: null
 // })
 const theme = null;
+
+// 样式设置
+const themeOverrides: GlobalThemeOverrides = {
+	common: {},
+	Form: {
+		labelFontSizeTopMedium: "15px",
+		feedbackFontSizeMedium: "13px",
+		blankHeightMedium: "5px",
+		feedbackHeightMedium: "22px",
+	},
+	Radio: {
+		buttonBorderRadius: "5px",
+		fontSizeMedium: "13px",
+		fontSizeSmall: "13px",
+		buttonHeightSmall: "22px",
+	},
+	Input: {
+		fontSizeSmall: "12px",
+		paddingSmall: "0 5px",
+	},
+	DynamicInput: {
+		actionMargin: "0 0 0 5px",
+	},
+};
+
 
 
 //表单数据
@@ -249,8 +275,9 @@ async function submit() {
         model.value.expression.trim().split(" ").length > 1 &&
         model.value.t === "WORD"
     ) {
-        message.warning(t("It looks more like a PHRASE than a WORD"));
-        return;
+        model.value.t = "PHRASE";
+        // message.warning(t("It looks more like a PHRASE than a WORD"));
+        // return;
     }
 
     let data = JSON.parse(JSON.stringify(model.value));
@@ -265,6 +292,8 @@ async function submit() {
         console.warn("Submit failed, please check server status");
         return;
     }
+    
+    message.success("Submit Success");
     loading.finish();
 }
 
@@ -301,3 +330,30 @@ chrome.runtime.onMessage.addListener((msg, sender, cb) => {
 })
 
 </script>
+
+<style>
+body {
+    color: red !important;
+}
+.n-dynamic-input .n-button-group {
+		flex-direction: column;
+}
+.n-dynamic-input .n-button-group button{
+			height: 26px;
+			width: 26px;
+
+			&:nth-child(1) {
+				border-top-left-radius: 0px !important;
+				border-top-right-radius: 0px !important;
+				border-bottom-left-radius: 0 !important;
+				border-bottom-right-radius: 0 !important;
+			}
+
+			&:nth-child(2) {
+				border-top-left-radius: 0 !important;
+				border-top-right-radius: 0 !important;
+				border-bottom-left-radius: 0px !important;
+				border-bottom-right-radius: 0px !important;
+			}
+		}
+</style>

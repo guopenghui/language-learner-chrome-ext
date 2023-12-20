@@ -11,35 +11,46 @@ interface RequestUrlParam {
     contentType?: string,
 }
 
-async function requestUrl(request: RequestUrlParam): Promise<Response> {
-    let data = {} as any;
-    let res = null as unknown as Response;
-    let headers = new Headers();
-    headers.set('Content-Type', 'application/json');
-
-    if (request.method === "POST") {
-        res = await fetch(request.url, { method: "POST", body: request.body, headers });
-    } else {
-        res = await fetch(request.url);
-    }
-    return res;
-}
 
 
 export default class Api {
     port: number;
-    constructor(port: number) {
+    host: string;
+    protocol: string;
+    prefix: string;
+    token: string;
+
+    constructor(host: string, port: number, https: boolean, prefix: string, token?: string) {
+        this.host = host;
         this.port = port;
+        this.protocol = https ? "https" : "http";
+        this.prefix = prefix;
+        this.token = token || "";
+    }
+
+    async requestUrl(request: RequestUrlParam): Promise<Response> {
+        let data = {} as any;
+        let res = null as unknown as Response;
+        let headers = new Headers();
+        headers.set('LR-API-key', this.token);
+
+        if (request.method === "POST") {
+            headers.set('Content-Type', 'application/json');
+            res = await fetch(request.url, { method: "POST", body: request.body, headers });
+        } else {
+            res = await fetch(request.url, { method: "GET", headers });
+        }
+        return res;
     }
 
     async echo(): Promise<number> {
         let request: RequestUrlParam = {
-            url: `http://localhost:${this.port}/echo`,
+            url: `${this.protocol}://${this.host}:${this.port}${this.prefix}/echo`,
             method: "GET",
         };
 
         try {
-            let response = await requestUrl(request);
+            let response = await this.requestUrl(request);
             return response.status;
         } catch (e) {
             return 0;
@@ -50,7 +61,7 @@ export default class Api {
     //     payload: ArticleWords
     // ): Promise<WordsPhrase | undefined> {
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/word_phrase`,
+    //         url: `http://${this.host}:${this.port}/word_phrase`,
     //         method: "POST",
     //         body: JSON.stringify(payload),
     //         contentType: "application/json",
@@ -70,14 +81,14 @@ export default class Api {
         expression: string
     ): Promise<ExpressionInfo | undefined> {
         let request: RequestUrlParam = {
-            url: `http://localhost:${this.port}/word`,
+            url: `${this.protocol}://${this.host}:${this.port}${this.prefix}/word`,
             method: "POST",
             body: JSON.stringify(expression.toLowerCase()),
             contentType: "application/json",
         };
 
         try {
-            let response = await requestUrl(request);
+            let response = await this.requestUrl(request);
             return await response.json();
         } catch (e) {
             console.warn("Error while getting data from server." + e);
@@ -87,7 +98,7 @@ export default class Api {
     // async getExpressionsSimple(expressions: string[]): Promise<ExpressionInfoSimple[] | undefined> {
     //     expressions = expressions.map(v => v.toLowerCase())
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/words_simple`,
+    //         url: `http://${this.host}:${this.port}/words_simple`,
     //         method: "POST",
     //         body: JSON.stringify(expressions),
     //         contentType: "application/json",
@@ -106,7 +117,7 @@ export default class Api {
     // async getExpressionAfter(time: string): Promise<ExpressionInfo[] | undefined> {
     //     let unixStamp = moment.utc(time).unix()
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/words/after`,
+    //         url: `http://${this.host}:${this.port}/words/after`,
     //         method: "POST",
     //         body: JSON.stringify(unixStamp),
     //         contentType: "application/json",
@@ -127,7 +138,7 @@ export default class Api {
     //     let mode = ignores ? "all" : "no_ignore";
 
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/words_simple/${mode}`,
+    //         url: `http://${this.host}:${this.port}/words_simple/${mode}`,
     //         method: "GET",
     //     };
 
@@ -143,13 +154,13 @@ export default class Api {
     // 添加或更新单词/词组的信息
     async postExpression(payload: ExpressionInfo): Promise<number | undefined> {
         let request: RequestUrlParam = {
-            url: `http://localhost:${this.port}/update`,
+            url: `${this.protocol}://${this.host}:${this.port}${this.prefix}/update`,
             method: "POST",
             body: JSON.stringify(payload),
             contentType: "application/json",
         };
         try {
-            let response = await requestUrl(request);
+            let response = await this.requestUrl(request);
             return response.status;
         } catch (e) {
             console.warn("Error while saving data to server." + e);
@@ -159,12 +170,12 @@ export default class Api {
     // 获取所有的tag
     async getTags(): Promise<string[] | undefined> {
         let request: RequestUrlParam = {
-            url: `http://localhost:${this.port}/tags`,
+            url: `${this.protocol}://${this.host}:${this.port}${this.prefix}/tags`,
             method: "GET",
         };
 
         try {
-            let response = await requestUrl(request);
+            let response = await this.requestUrl(request);
             return await response.json();
         } catch (e) {
             console.warn("Error getting tags from server." + e);
@@ -174,7 +185,7 @@ export default class Api {
     // 发送所有忽略的新词
     // async postIgnoreWords(payload: string[]) {
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/ignores`,
+    //         url: `http://${this.host}:${this.port}/ignores`,
     //         method: "POST",
     //         body: JSON.stringify(payload),
     //         contentType: "application/json",
@@ -190,7 +201,7 @@ export default class Api {
     // // 尝试查询已存在的例句
     // async tryGetSen(text: string): Promise<Sentence | undefined> {
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/sentence`,
+    //         url: `http://${this.host}:${this.port}/sentence`,
     //         method: "POST",
     //         body: JSON.stringify(text),
     //         contentType: "application/json",
@@ -208,7 +219,7 @@ export default class Api {
     // // 获取各种类型的单词/词组类型
     // async getCount(): Promise<CountInfo | undefined> {
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/count_all`,
+    //         url: `http://${this.host}:${this.port}/count_all`,
     //         method: "GET",
     //     };
     //     try {
@@ -235,7 +246,7 @@ export default class Api {
     //     });
 
     //     let request: RequestUrlParam = {
-    //         url: `http://localhost:${this.port}/count_time`,
+    //         url: `http://${this.host}:${this.port}/count_time`,
     //         method: "POST",
     //         body: JSON.stringify(spans),
     //         contentType: "application/json",

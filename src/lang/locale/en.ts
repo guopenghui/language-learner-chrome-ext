@@ -28,6 +28,10 @@ export default {
     "Expression is empty!": "Expression is empty!",
     "Meaning is empty!": "Meaning is empty!",
     "Submit": "Submit",
+    "Host": "Host",
+    "Https": "Https",
+    "Token": "Token",
+    "Prefix": "Prefix",
     "Port": "Port",
     "Save Success": "Save Success",
 };

@@ -3,19 +3,33 @@ import { ref } from 'vue';
 import { NMessageProvider, useMessage } from "naive-ui";
 import { t } from "../lang/helper";
 
-let port = ref(3002);
-chrome.storage.sync.get(["port"], (data) => {
+let host = ref("");
+let port = ref(0);
+let https = ref(false);
+let prefix = ref("");
+let token = ref("")
+
+chrome.storage.sync.get(["port", "host", "https", "prefix", "token"], (data) => {
     port.value = data.port;
+    host.value = data.host;
+    https.value = data.https;
+    prefix.value = data.prefix;
+    token.value = data.token;
 });
 
 let message = useMessage();
 
 
 function saveSettings() {
-    chrome.storage.sync.set({
+    let data = {
         port: port.value,
-    }, async () => {
-        await chrome.runtime.sendMessage({ type: "CHANGE_PORT", port: port.value });
+        host: host.value,
+        https: https.value,
+        prefix: prefix.value,
+        token: token.value,
+    };
+    chrome.storage.sync.set(data , async () => {
+        await chrome.runtime.sendMessage(Object.assign({ type: "CHANGE_SETTINGS" }, data));
         message.success(t("Save Success"));
     });
 }
@@ -30,8 +44,26 @@ function saveSettings() {
     <main>
         <h3>Options Page!</h3>
         <div class="option-container">
-            <span>{{ t("Port") }}: </span>
-            <input type="number" v-model="port">
+            <div class="option">
+                <span>{{ t("Host") }}: </span>
+                <input type="text" v-model="host">
+            </div>
+            <div class="option">
+                <span>{{ t("Port") }}: </span>
+                <input type="number" v-model="port">
+            </div>
+            <div class="option">
+                <span>{{ t("Https") }}: </span>
+                <input type="checkbox" v-model="https">
+            </div>
+            <div class="option">
+                <span>{{ t("Prefix") }}: </span>
+                <input type="text" v-model="prefix">
+            </div>
+            <div class="option">
+                <span>{{ t("Token") }}: </span>
+                <input type="text" v-model="token">
+            </div>
             <button @click="saveSettings">Save</button>
         </div>
     </main>

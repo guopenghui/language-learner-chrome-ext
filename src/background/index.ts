@@ -9,9 +9,9 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
 
     // 初始化设置
-    chrome.storage.sync.set({
-        port: 3002,
-    });
+    // chrome.storage.sync.set({
+    //     port: 3002,
+    // });
 });
 
 // 每次打开插件时注册事件
@@ -23,14 +23,17 @@ chrome.contextMenus.onClicked.addListener(async (event) => {
 });
 
 let api: Api;
-chrome.storage.sync.get(["port"], (data) => {
-    api = new Api(data.port ?? 3002);
+chrome.storage.sync.get(
+    ["host", "port", "https", "prefix", "token"],
+    ({host, port, https, prefix, token}) => {
+    api = new Api(host, port, https, prefix, token);
 });
 
-chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === "CHANGE_PORT") {
-        api.port = msg.port;
-    }
+chrome.runtime.onMessage.addListener(
+    ({type, host, port, https, prefix, token}) => {
+        if (type === "CHANGE_SETTINGS") {
+            api = new Api(host, port, https, prefix, token);
+        }
 });
 chrome.runtime.onMessage.addListener((msg, _, cb) => {
     if (msg.type === "SEARCH_WORD") {
